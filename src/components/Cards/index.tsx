@@ -72,12 +72,12 @@ const Cards = ({booster}: CardsProps) => {
             <div style={{marginBottom: '20px'}}>
                 <h3>Cartas da Pool:</h3>
                 <div style={{display: 'flex', flexWrap: 'wrap', gap: '16px'}}>
-                    {booster.map((card) => {
+                    {booster.map((card, index) => {
                         const isSelected = selectedCards.some(selected => selected.id === card.id);
 
                         return (
                             <div
-                                key={card.id}
+                                key={index}
                                 style={{
                                     maxWidth: '150px',
                                     textAlign: 'center',

@@ -50,7 +50,16 @@ const BoosterDrafter = () => {
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <img src={AetherDriftImg} alt="" style={{marginBottom: '20px'}}/>
+            <img
+                src={AetherDriftImg}
+                alt=""
+                style={{
+                    marginBottom: '20px',
+                    width: '100%',
+                    maxWidth: '600px',
+                    height: 'auto'
+                }}
+            />
             <button
                 onClick={generateBoosters}
                 style={{
