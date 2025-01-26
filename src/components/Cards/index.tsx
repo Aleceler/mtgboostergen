@@ -32,11 +32,13 @@ const Cards = ({booster}: CardsProps) => {
         }
     };
 
+    const isMobile = window.innerWidth <= 768;
+
     return (
         <div>
             <div style={{marginBottom: '20px'}}>
                 {selectedCards.length > 0 && <h3>Cartas Selecionadas:</h3>}
-                <div style={{display: 'flex', flexWrap: 'wrap', gap: '16px'}}>
+                <div style={{display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center'}}>
                     {selectedCards.map((card) => (
                         <div
                             key={card.id}
@@ -51,8 +53,10 @@ const Cards = ({booster}: CardsProps) => {
                             }}
                             onClick={() => handleSelectCard(card)}
                             onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'scale(2.2)';
-                                e.currentTarget.style.zIndex = '10';
+                                if (!isMobile) {
+                                    e.currentTarget.style.transform = 'scale(2.2)';
+                                    e.currentTarget.style.zIndex = '10';
+                                }
                             }}
                             onMouseLeave={(e) => {
                                 e.currentTarget.style.transform = 'scale(1)';
@@ -71,7 +75,7 @@ const Cards = ({booster}: CardsProps) => {
 
             <div style={{marginBottom: '20px'}}>
                 <h3>Cartas da Pool:</h3>
-                <div style={{display: 'flex', flexWrap: 'wrap', gap: '16px'}}>
+                <div style={{display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center'}}>
                     {booster.map((card, index) => {
                         const isSelected = selectedCards.some(selected => selected.id === card.id);
 
@@ -90,7 +94,7 @@ const Cards = ({booster}: CardsProps) => {
                                 }}
                                 onClick={() => !isSelected && handleSelectCard(card)}
                                 onMouseEnter={(e) => {
-                                    if (!isSelected) {
+                                    if (!isMobile && !isSelected) {
                                         e.currentTarget.style.transform = 'scale(2.2)';
                                         e.currentTarget.style.zIndex = '10';
                                     }

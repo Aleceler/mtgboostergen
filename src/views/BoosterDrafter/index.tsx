@@ -55,8 +55,7 @@ const BoosterDrafter = () => {
                 alt=""
                 style={{
                     marginBottom: '20px',
-                    width: '100%',
-                    maxWidth: '600px',
+                    maxWidth: '100%',
                     height: 'auto'
                 }}
             />
