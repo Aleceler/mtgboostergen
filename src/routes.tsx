@@ -9,7 +9,7 @@ const Routes = createBrowserRouter([
         element: <Layout/>,
         children: [
             {
-                path: 'generate',
+                path: '/',
                 element: <BoosterDraft/>,
             },
         ],
