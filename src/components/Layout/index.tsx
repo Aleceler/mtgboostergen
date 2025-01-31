@@ -1,17 +1,13 @@
-import React from 'react';
-import {AppBar, Toolbar, Typography, Container, Box} from '@mui/material';
+
+import { Typography, Container, Box} from '@mui/material';
 import {Outlet} from "react-router-dom";
+import Header from "../Header";
 
 const Layout: React.FC = () => {
     return (
         <Box display="flex" flexDirection="column" minHeight="100vh">
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography variant="h6" component="div">
-                    </Typography>
-                </Toolbar>
-            </AppBar>
-            <Box component="main" flexGrow={1} py={3}>
+    <Header/>
+            <Box component="main" flexGrow={1} py={3} pt={10}>
                 <Container>
                     <Outlet/>
                 </Container>
