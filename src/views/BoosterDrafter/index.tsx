@@ -1,7 +1,7 @@
-import cardsData from '../../../aetherdrift.json';
+import cardsData from '../../../edgeofeternity.json';
 import Cards from '../../components/Cards';
 import {useState} from "react";
-import AetherDriftImg from '../../assets/images/aetherdriftimg.png'
+import AetherDriftImg from '../../assets/images/bpoosteredge.webp'
 
 type Card = {
     id: string;

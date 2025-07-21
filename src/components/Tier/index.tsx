@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Box, Card, Typography, Button} from '@mui/material';
-import cardsData from '../../../aetherdrift.json';
+import cardsData from '../../../edgeofeternity.json';
 
 type Tier = 'S' | 'A' | 'B' | 'C' | 'D' | 'E';
 
