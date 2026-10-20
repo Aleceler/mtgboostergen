@@ -1,21 +1,16 @@
-import cardsData from '../../../edgeofeternity.json';
 import Cards from '../../components/Cards';
-import {useState} from "react";
-import AetherDriftImg from '../../assets/images/bpoosteredge.webp'
+import {useEffect, useState} from "react";
+import {Button, CircularProgress, Typography} from '@mui/material';
+import {BoosterCard} from '../../services/scryfall';
+import {useBoosterSet} from '../../hooks/useBoosterSet';
 
-type Card = {
-    id: string;
-    name: string;
-    rarity: string;
-};
+const generateBoosterPack = (cards: BoosterCard[]) => {
+    const commonCards = cards.filter((card) => card.rarity === 'common');
+    const uncommonCards = cards.filter((card) => card.rarity === 'uncommon');
+    const rareCards = cards.filter((card) => card.rarity === 'rare');
+    const mythicCards = cards.filter((card) => card.rarity === 'mythic');
 
-const generateBoosterPack = (data: { data: Card[] }) => {
-    const commonCards = data.data.filter((card) => card.rarity === 'common');
-    const uncommonCards = data.data.filter((card) => card.rarity === 'uncommon');
-    const rareCards = data.data.filter((card) => card.rarity === 'rare');
-    const mythicCards = data.data.filter((card) => card.rarity === 'mythic');
-
-    const getRandomCards = (pool: Card[], count: number) => {
+    const getRandomCards = (pool: BoosterCard[], count: number) => {
         const shuffled = [...pool].sort(() => Math.random() - 0.5);
         return shuffled.slice(0, count);
     };
@@ -38,41 +33,37 @@ const generateBoosterPack = (data: { data: Card[] }) => {
 
 
 const BoosterDrafter = () => {
-    const [boosters, setBoosters] = useState<Card[][]>([]);
+    const {selectedSet, cards, loading, error} = useBoosterSet();
+    const [boosters, setBoosters] = useState<BoosterCard[][]>([]);
+
+    useEffect(() => {
+        setBoosters([]);
+    }, [selectedSet?.code]);
 
     const generateBoosters = () => {
         const generatedBoosters = [];
         for (let i = 0; i < 6; i++) {
-            generatedBoosters.push(generateBoosterPack(cardsData));
+            generatedBoosters.push(generateBoosterPack(cards));
         }
         setBoosters(generatedBoosters);
     };
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-            <img
-                src={AetherDriftImg}
-                alt=""
-                style={{
-                    marginBottom: '20px',
-                    maxWidth: '100%',
-                    height: 'auto'
-                }}
-            />
-            <button
-                onClick={generateBoosters}
-                style={{
-                    padding: '10px 20px',
-                    fontSize: '16px',
-                    background: '#007BFF',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                }}
-            >
-                Gerar 6 boosters
-            </button>
+            {selectedSet && (
+                <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px'}}>
+                    <img src={selectedSet.icon_svg_uri} alt="" style={{height: '48px', filter: 'invert(1)'}}/>
+                    <Typography variant="h4" sx={{fontSize: {xs: '1.6rem', sm: '2.125rem'}}}>{selectedSet.name}</Typography>
+                </div>
+            )}
+            {error && <Typography color="error">{error}</Typography>}
+            {loading ? (
+                <CircularProgress/>
+            ) : (
+                <Button variant="contained" size="large" onClick={generateBoosters} disabled={!cards.length}>
+                    Gerar 6 boosters
+                </Button>
+            )}
             <div style={{marginTop: '20px'}}>
                 {boosters.map((booster, index) => (
                     <Cards key={index} booster={booster}/>

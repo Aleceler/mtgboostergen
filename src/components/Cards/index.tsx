@@ -1,15 +1,7 @@
 import {useState} from "react";
+import {BoosterCard} from "../../services/scryfall";
 
-type CardProps = {
-    id: string;
-    name: string;
-    manaCost: number;
-    image_uris: {
-        small: string;
-        normal: string;
-        large: string;
-    };
-};
+type CardProps = BoosterCard;
 
 type CardsProps = {
     booster: CardProps[];
@@ -23,11 +15,11 @@ const Cards = ({booster}: CardsProps) => {
             setSelectedCards(
                 selectedCards
                     .filter(selected => selected.id !== card.id)
-                    .sort((a, b) => a.manaCost - b.manaCost)
+                    .sort((a, b) => a.cmc - b.cmc)
             );
         } else {
             setSelectedCards(
-                [...selectedCards, card].sort((a, b) => a.manaCost - b.manaCost)
+                [...selectedCards, card].sort((a, b) => a.cmc - b.cmc)
             );
         }
     };
@@ -64,7 +56,7 @@ const Cards = ({booster}: CardsProps) => {
                             }}
                         >
                             <img
-                                src={card.image_uris.normal}
+                                src={card.imageUrl}
                                 alt={card.name}
                                 style={{width: '100%', borderRadius: '8px'}}
                             />
@@ -105,7 +97,7 @@ const Cards = ({booster}: CardsProps) => {
                                 }}
                             >
                                 <img
-                                    src={card.image_uris.normal}
+                                    src={card.imageUrl}
                                     alt={card.name}
                                     style={{
                                         width: '100%',

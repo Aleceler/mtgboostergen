@@ -1,49 +1,91 @@
-import React, {useState} from 'react';
-import {Box, Card, Typography, Button} from '@mui/material';
-import cardsData from '../../../edgeofeternity.json';
-
-type Tier = 'S' | 'A' | 'B' | 'C' | 'D' | 'E';
-
-interface CardItem {
-    id: string;
-    name: string;
-    color: string;
-    tier?: Tier;
-    imageUrl: string;
-}
-
-
-const convertCardsData = (data: any): CardItem[] => {
-    return data.data.map((card: any) => ({
-        id: card.id,
-        name: card.name,
-        imageUrl: card.image_uris.normal,
-    }));
-};
-
-const initialCards: CardItem[] = convertCardsData(cardsData);
+import React, {useEffect, useState} from 'react';
+import {Alert, Box, Card, Typography, Button, CircularProgress} from '@mui/material';
+import {useBoosterSet} from '../../hooks/useBoosterSet';
+import {fetchTiers, removeTier, saveTier, Tier} from '../../services/supabase';
 
 const TierSystem: React.FC = () => {
-    const [cards, setCards] = useState<CardItem[]>(initialCards);
+    const {selectedSet, cards: setCards, loading, error} = useBoosterSet();
+    const [tiers, setTiers] = useState<Record<string, Tier>>({});
+    const [tiersLoading, setTiersLoading] = useState(false);
+    const [tiersError, setTiersError] = useState<string>();
 
-    const moveToTier = (cardId: string, tier: Tier) => {
-        setCards((prevCards) =>
-            prevCards.map((card) =>
-                card.id === cardId ? {...card, tier} : card
-            )
-        );
+    const setCode = selectedSet?.code;
+
+    useEffect(() => {
+        setTiers({});
+        if (!setCode) {
+            return;
+        }
+
+        let cancelled = false;
+        setTiersLoading(true);
+        setTiersError(undefined);
+
+        fetchTiers(setCode)
+            .then((savedTiers) => {
+                if (!cancelled) {
+                    setTiers(savedTiers);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setTiersError('Não foi possível carregar seus tiers.');
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setTiersLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [setCode]);
+
+    const cards = setCards.map((card) => ({...card, tier: tiers[card.id]}));
+
+    const updateTier = async (cardId: string, tier?: Tier) => {
+        if (!setCode) {
+            return;
+        }
+
+        const previousTiers = tiers;
+        const nextTiers = {...tiers};
+        if (tier) {
+            nextTiers[cardId] = tier;
+        } else {
+            delete nextTiers[cardId];
+        }
+        setTiers(nextTiers);
+        setTiersError(undefined);
+
+        try {
+            if (tier) {
+                await saveTier(setCode, cardId, tier);
+            } else {
+                await removeTier(cardId);
+            }
+        } catch {
+            setTiers(previousTiers);
+            setTiersError('Não foi possível salvar o tier.');
+        }
     };
 
-    const returnToList = (cardId: string) => {
-        setCards((prevCards) =>
-            prevCards.map((card) =>
-                card.id === cardId ? {...card, tier: undefined} : card
-            )
-        );
-    };
+    const moveToTier = (cardId: string, tier: Tier) => updateTier(cardId, tier);
+
+    const returnToList = (cardId: string) => updateTier(cardId);
+
+    if (loading || tiersLoading) {
+        return <CircularProgress/>;
+    }
+
+    if (error) {
+        return <Typography color="error">{error}</Typography>;
+    }
 
     const renderTierCards = (tier: Tier) => (
-        <Box sx={{marginBottom: 2, border: '1px solid gray', borderRadius: 2, padding: 2}}>
+        <Box sx={{marginBottom: 2, border: 1, borderColor: 'divider', borderRadius: 2, padding: 2}}>
             <Typography variant="h6">Tier {tier}</Typography>
             <Box sx={{display: 'flex', gap: 2, flexWrap: 'wrap', marginTop: 2}}>
                 {cards
@@ -81,6 +123,7 @@ const TierSystem: React.FC = () => {
 
     return (
         <Box>
+            {tiersError && <Alert severity="error" sx={{marginBottom: 2}}>{tiersError}</Alert>}
             {(['S', 'A', 'B', 'C', 'D', 'E'] as Tier[]).map((tier) =>
                 renderTierCards(tier)
             )}
@@ -108,7 +151,7 @@ const TierSystem: React.FC = () => {
                                     alt={card.name}
                                     style={{width: '100%', height: '70%', objectFit: 'cover', borderRadius: 4}}
                                 />
-                                <Typography variant="body2" color="white" sx={{textAlign: 'center', marginTop: 1}}>
+                                <Typography variant="body2" color="text.primary" sx={{textAlign: 'center', marginTop: 1}}>
                                     {card.name}
                                 </Typography>
                                 <Box sx={{marginTop: 1, display: 'flex'}}>
