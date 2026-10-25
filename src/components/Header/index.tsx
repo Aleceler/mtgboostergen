@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {AppBar, Toolbar, Box, Button, IconButton, Menu, MenuItem, Select, useMediaQuery, useTheme} from '@mui/material';
+import {AppBar, Toolbar, Box, Button, Chip, IconButton, Menu, MenuItem, Select, useMediaQuery, useTheme} from '@mui/material';
 import {Link} from 'react-router-dom';
 import mtgLogo from '../../assets/images/mtglogo.png';
-import {ScryfallSet} from '../../services/scryfall';
+import {isUpcomingSet, ScryfallSet} from '../../services/scryfall';
 import {supabase} from '../../services/supabase';
 import {useSession} from '../../hooks/useSession';
 
@@ -64,6 +64,9 @@ const Header: React.FC<HeaderProps> = ({sets, selectedCode, onSelectSet}) => {
                                     sx={{height: 18, width: 18, marginRight: 1, verticalAlign: 'middle', filter: 'invert(1)'}}
                                 />
                                 {set.name}
+                                {isUpcomingSet(set) && (
+                                    <Chip size="small" label="Pré-release" color="secondary" sx={{marginLeft: 1, height: 20}}/>
+                                )}
                             </MenuItem>
                         ))}
                     </Select>

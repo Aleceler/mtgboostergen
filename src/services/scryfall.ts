@@ -1,6 +1,10 @@
 const API_URL = 'https://api.scryfall.com';
 const PLAY_BOOSTER_SET_TYPES = ['expansion', 'core'];
 const REQUEST_DELAY_MS = 100;
+const PRERELEASE_WINDOW_DAYS = 30;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const toDateString = (date: Date) => date.toISOString().slice(0, 10);
 
 export type ScryfallSet = {
     code: string;
@@ -68,8 +72,10 @@ const fetchJson = async <T>(url: string): Promise<T> => {
     return response.json();
 };
 
+export const isUpcomingSet = (set: ScryfallSet) => set.released_at > toDateString(new Date());
+
 export const fetchLatestSets = async (limit = 5): Promise<ScryfallSet[]> => {
-    const today = new Date().toISOString().slice(0, 10);
+    const lastReleaseDate = toDateString(new Date(Date.now() + PRERELEASE_WINDOW_DAYS * DAY_MS));
     const {data} = await fetchJson<ScryfallList<ScryfallSet>>(`${API_URL}/sets`);
 
     return data
@@ -77,7 +83,7 @@ export const fetchLatestSets = async (limit = 5): Promise<ScryfallSet[]> => {
             PLAY_BOOSTER_SET_TYPES.includes(set.set_type) &&
             !set.digital &&
             !set.parent_set_code &&
-            set.released_at <= today
+            set.released_at <= lastReleaseDate
         )
         .sort((a, b) => b.released_at.localeCompare(a.released_at))
         .slice(0, limit);
