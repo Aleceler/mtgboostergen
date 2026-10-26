@@ -81,7 +81,7 @@ const scoresOf = (cards: PoolCard[]) =>
 
 const sumCount = (cards: PoolCard[]) => cards.reduce((sum, card) => sum + card.count, 0);
 
-const colorRank = (card: BoosterCard) => {
+export const colorRank = (card: BoosterCard) => {
     if (!card.colors.length) {
         return COLORS.length + 1;
     }

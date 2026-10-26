@@ -2,17 +2,21 @@ import React, {useEffect, useState} from 'react';
 import {Alert, Box, Card, Typography, Button, CircularProgress} from '@mui/material';
 import {useBoosterSet} from '../../hooks/useBoosterSet';
 import {fetchTiers, removeTier, saveTier, Tier} from '../../services/supabase';
+import {applyCardFilters, CardFilterState, EMPTY_FILTERS} from '../../services/cardFilters';
+import CardFilters from '../CardFilters';
 
 const TierSystem: React.FC = () => {
     const {selectedSet, cards: setCards, loading, error} = useBoosterSet();
     const [tiers, setTiers] = useState<Record<string, Tier>>({});
     const [tiersLoading, setTiersLoading] = useState(false);
     const [tiersError, setTiersError] = useState<string>();
+    const [filters, setFilters] = useState<CardFilterState>(EMPTY_FILTERS);
 
     const setCode = selectedSet?.code;
 
     useEffect(() => {
         setTiers({});
+        setFilters(EMPTY_FILTERS);
         if (!setCode) {
             return;
         }
@@ -44,6 +48,8 @@ const TierSystem: React.FC = () => {
     }, [setCode]);
 
     const cards = setCards.map((card) => ({...card, tier: tiers[card.id]}));
+    const untieredCards = cards.filter((card) => !card.tier);
+    const listCards = applyCardFilters(untieredCards, filters);
 
     const updateTier = async (cardId: string, tier?: Tier) => {
         if (!setCode) {
@@ -130,9 +136,14 @@ const TierSystem: React.FC = () => {
 
             <Box sx={{marginTop: 4,}}>
                 <Typography variant="h6">Lista Completa</Typography>
+                <CardFilters value={filters} onChange={setFilters} shown={listCards.length} total={untieredCards.length}/>
+                {listCards.length === 0 && (
+                    <Typography variant="body2" color="text.secondary" sx={{marginTop: 2}}>
+                        Nenhuma carta com esses filtros.
+                    </Typography>
+                )}
                 <Box sx={{display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 2}}>
-                    {cards
-                        .filter((card) => !card.tier)
+                    {listCards
                         .map((card) => (
                             <Card
                                 key={card.id}
